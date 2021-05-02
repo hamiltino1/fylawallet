@@ -241,6 +241,23 @@ public class Api {
                 return halt(500, errorMsg);
             }
         }, json());
+        post("/api/importseed", (request, response) -> {
+            try {
+                String account = params.get("account");
+                String password = params.get("password");
+                String seed = params.get("seed");
+
+                DbMethods.deleteAccounts();
+                oneAddress = Keys.addKey(account, password, seed);
+                return oneAddress;
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+                String errorMsg = "Error: " + e.getMessage();;
+                return halt(500, errorMsg);
+            }
+        }, json());
+
         post("/api/importprivatekey", (request, response) -> {
             try {
                 //get params
