@@ -8,6 +8,7 @@ import one.harmony.transaction.Handler;
 import one.harmony.transaction.ChainID;
 import one.harmony.cmd.Balance;
 import one.harmony.cmd.Transfer;
+import one.harmony.account.HistoryParams;
 
 //web3j
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
@@ -69,7 +70,10 @@ import org.json.JSONObject;
 
 //gson
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+
 
 public class Api {
     
@@ -242,6 +246,30 @@ public class Api {
                 return halt(500, errorMsg);
             }
         }, json());
+        post("/api/onehistory", (request, response) -> {
+            try {
+                response.type("application/json");
+                List<NameValuePair> pairs = URLEncodedUtils.parse(request.body(), Charset.defaultCharset());
+
+                Map<String, String> params = toMap(pairs);
+                String oneAddress = params.get("oneAddress");
+
+                HistoryParams historyParams = new HistoryParams(oneAddress);
+                String history = Blockchain.getAccountTransactions(historyParams);
+
+                Gson gson = new Gson();
+                String data=history;
+                JsonParser jsonParser = new JsonParser();
+                JsonArray jsonArray = (JsonArray) jsonParser.parse(data);
+                return jsonArray;
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+                String errorMsg = "Error: " + e.getMessage();;
+                return halt(500, errorMsg);
+            }
+        }, json());
+
         post("/api/importseed", (request, response) -> {
             try {
                 response.type("application/json");
