@@ -94,6 +94,7 @@ public class Api {
                 new MnemonicGenerator(English.INSTANCE)
                     .createMnemonic(entropy, sb::append);
                 String seed = sb.toString();
+                System.out.println(seed);
                 //purge account table
                 DbMethods.deleteAccounts();
                 //createAccount
@@ -243,12 +244,27 @@ public class Api {
         }, json());
         post("/api/importseed", (request, response) -> {
             try {
+                response.type("application/json");
+                List<NameValuePair> pairs = URLEncodedUtils.parse(request.body(), Charset.defaultCharset());
+
+                Map<String, String> params = toMap(pairs);
                 String account = params.get("account");
                 String password = params.get("password");
                 String seed = params.get("seed");
 
                 DbMethods.deleteAccounts();
                 oneAddress = Keys.addKey(account, password, seed);
+                DbMethods.deleteAccounts();
+
+                //get ethFormattedAddress and privateKey
+                String accountInfo  = Keys.exportKeyStoreFromAddress(oneAddress, password);
+                ObjectMapper mapper1 = new ObjectMapper();
+                Map<String,Object> map = mapper1.readValue(accountInfo, Map.class);
+                ethFormattedAddress = "0x" + map.get("address"); 
+                //get private key
+                String privateKey  = Keys.exportPrivateKeyFromAddress(oneAddress, password);
+                //insert into DB.
+                DbMethods.insertAccount(account, password, seed, oneAddress, ethFormattedAddress, privateKey);
                 return oneAddress;
             }
             catch(Exception e) {
@@ -286,6 +302,7 @@ public class Api {
                 contract = ERC20.load(contractAddress, contractGasProvider);
                 handler = new Handler(oneAddress, passphrase, node, ChainID.MAINNET);
                 contract.setHandler(handler);
+
                 //updateDB
                 DbMethods.updatePrivateKey(privateKey, accountName, password, oneAddress, ethFormattedAddress);  
             }
