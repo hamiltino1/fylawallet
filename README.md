@@ -18,7 +18,7 @@ API's(POST)
 /api/balance params - coin(FYLA or ONE)
 
 
-/api/transfer params - coin(FYLA or ONE), from, to amount
+/api/transfer params - coin(FYLA or ONE), from, to, amount
 
 
 /api/accountInfo - params - null
