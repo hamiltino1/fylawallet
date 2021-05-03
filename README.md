@@ -5,7 +5,7 @@ Dependencies:
 Java 8+
 gradle
 
-Run gradle assemble in the app directory and go to the build/libs folder and run with java -jar *.jar
+Run gradle assemble in the app directory and go to the build/libs folder and run the jar with java -jar *.jar
 
 API's(POST)
 
